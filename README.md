@@ -29,7 +29,7 @@ The mod id should be in kebab-case and is preferably also the same as `mod-name`
 
 ### {{mod-name}}.json
 
-Below is an example metadata file for configuring your mod. Make sure priority is less than loader-api's priority of 100.
+Below is an example metadata file for configuring your mod. Make sure priority is greater than loader-api's priority of -1.
 
 ```json
 {
