@@ -4,13 +4,11 @@ Simple API mod to load mods that follow the convention below
 
 ## Convention
 
-Below is the convention definition for mods that can use the Loader API. Wherever you see `{{mod-name}}` or `{{MOD_ID}}` you should replace with variables
-specific to your mod.
+Below is the convention definition for mods that can use the Loader API. Wherever you see `{{mod-name}}` or `{{MOD_ID}}` you should replace with variables specific to your mod, along with preferably following the naming convention used.
 
 ### Directory Structure
 
-The directory of your mod should be structured as below, with all the files
-related to the mod contained inside the `src` directory. A different name along with additional directories to load can be configured in the `init` function options.
+The directory of your mod should be structured as below, with all the files related to the mod contained inside the `src` directory. A different name along with additional directories to load can be configured in the `init` function options.
 
 ```
 {{mod-name}}
@@ -28,6 +26,24 @@ related to the mod contained inside the `src` directory. A different name along 
 
 The mod id should be in kebab-case and is preferably also the same as `mod-name` used in the directory structure above.
 **E.g** `loader-api`
+
+### {{mod-name}}.json
+
+Below is an example metadata file for configuring your mod. Make sure priority is less than loader-api's priority of 100.
+
+```json
+{
+  "id": "{{mod-name}}",
+  "name": "{{Mod Name}}",
+  "display_name": "{{Mod Name}}",
+  "author": ["{{author}}"],
+  "description": "{{description}}",
+  "prefix": "{{mod_name}}",
+  "main_file": "main.lua",
+  "version": "1.0.0",
+  "dependencies": ["Steamodded (>=1.*)", "Lovely (>=0.6)", "loader-api (>=1.*)"]
+}
+```
 
 ### main.lua
 
