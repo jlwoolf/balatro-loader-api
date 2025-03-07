@@ -44,7 +44,7 @@ end
 ---@param id? string
 ---@param options? Options
 function LOADER_API.init(id, options)
-	local mod = id and SMODS.findModByID(id) or SMODS.current_mod
+	local mod = SMODS.Mods[id] or SMODS.current_mod
 
 	if id and not mod then
 		sendErrorMessage("Error finding mod with id: " .. id)
