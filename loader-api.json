@@ -1,0 +1,13 @@
+{
+  "id": "loader-api",
+  "name": "Loader API",
+  "display_name": "Loader API",
+  "author": ["jlwoolf"],
+  "description": "API for easily loading mods that follow a specific file structure format",
+  "prefix": "loader_api",
+  "main_file": "main.lua",
+  "badge_colour": "",
+  "badge_text_colour": "",
+  "version": "1.0.0",
+  "dependencies": ["Steamodded (>=1.*)", "Lovely (>=0.6)"]
+}
