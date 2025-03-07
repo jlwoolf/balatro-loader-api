@@ -7,7 +7,7 @@ LOADED_FILES = {}
 ---loads all the files in a directory
 ---@param directory string the path of the directory to load
 ---@param depth number|nil the depth to recurse through the directory. defaults to 1
-LOADER_API.load_directory = function(directory, depth)
+function LOADER_API.load_directory(directory, depth)
 	depth = depth or 1
 	if depth > 3 then
 		return
@@ -43,7 +43,7 @@ end
 ---initializes a mod
 ---@param id? string
 ---@param options? Options
-LOADER_API.init = function(id, options)
+function LOADER_API.init(id, options)
 	local mod = id and SMODS.findModByID(id) or SMODS.current_mod
 
 	if id and not mod then

@@ -60,7 +60,7 @@ Loads a specific directory. Useful you don't want to use the `init` function but
 ---loads all the files in a directory
 ---@param directory string the path of the directory to load
 ---@param depth number|nil the depth to recurse through the directory. defaults to 1
-LOADER_API.load_directory = function(directory, depth)
+function LOADER_API.load_directory(directory, depth)
 ```
 
 ### `LOADER_API.init`
@@ -80,5 +80,5 @@ Initializes a mod. To initialize a specific mod instead of the current mod being
 ---initializes a mod
 ---@param id? string
 ---@param options? Options
-LOADER_API.init = function(id, options) end
+function LOADER_API.init(id, options)
 ```
