@@ -1,0 +1,35 @@
+name: Create Archive
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@master
+    
+    - name: Get the version
+      run: |
+        delimiter=$(openssl rand -hex 8)
+        {
+            echo "METADATA<<$delimiter"
+            sed -e '$a\' loader-api.json
+            echo "$delimiter"
+        } >> "$GITHUB_ENV"
+        
+    - name: Archive Release Zip
+      uses: thedoctor0/zip-release@0.7.5
+      with:
+        type: 'zip'
+        filename: '${{ fromJson(env.METADATA).version }}.zip'
+        exclusions: '*.git* /*node_modules/* .editorconfig *.github*'
+
+    - name: Upload Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        allowUpdates: true
+        replacesArtifacts: true
+        artifacts: "${{ fromJson(env.METADATA).version }}.zip"
+        body: "**Full Changelog**: https://github.com/jlwoolf/balatro-loarder-api/commits/${{ fromJson(env.METADATA).version }}"
+        commit: "main"
+        tag: "${{ fromJson(env.METADATA).version }}"
