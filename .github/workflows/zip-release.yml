@@ -1,5 +1,9 @@
 name: Create Archive
 on: [push]
+
+env:
+  MOD_NAME: loader-api
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -13,7 +17,7 @@ jobs:
         delimiter=$(openssl rand -hex 8)
         {
             echo "METADATA<<$delimiter"
-            sed -e '$a\' loader-api.json
+            sed -e '$a\' "$MOD_NAME".json
             echo "$delimiter"
         } >> "$GITHUB_ENV"
         
@@ -21,15 +25,20 @@ jobs:
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        filename: '${{ fromJson(env.METADATA).version }}.zip'
+        filename: '${{ env.MOD_NAME }}-${{ fromJson(env.METADATA).version }}.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig *.github*'
+
+    - uses: rickstaa/action-create-tag@v1
+      with:
+        tag: "${{ fromJson(env.METADATA).version }}"
+        tag_exists_error: false
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
         allowUpdates: true
         replacesArtifacts: true
-        artifacts: "${{ fromJson(env.METADATA).version }}.zip"
+        artifacts: "${{ env.MOD_NAME }}-${{ fromJson(env.METADATA).version }}.zip"
         body: ""
         commit: "main"
         tag: "${{ fromJson(env.METADATA).version }}"
