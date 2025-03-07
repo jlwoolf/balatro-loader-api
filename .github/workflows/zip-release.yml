@@ -31,7 +31,7 @@ jobs:
     - uses: rickstaa/action-create-tag@v1
       with:
         tag: "${{ fromJson(env.METADATA).version }}"
-        tag_exists_error: false
+        force_push_tag: true
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
