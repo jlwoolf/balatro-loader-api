@@ -5,6 +5,7 @@
   "author": ["jlwoolf"],
   "description": "API for easily loading mods that follow a specific file structure format.",
   "prefix": "loader_api",
+  "priority": "10",
   "main_file": "main.lua",
   "badge_colour": "",
   "badge_text_colour": "",
