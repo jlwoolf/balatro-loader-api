@@ -30,6 +30,6 @@ jobs:
         allowUpdates: true
         replacesArtifacts: true
         artifacts: "${{ fromJson(env.METADATA).version }}.zip"
-        body: "**Full Changelog**: https://github.com/jlwoolf/balatro-loarder-api/commits/${{ fromJson(env.METADATA).version }}"
+        body: ""
         commit: "main"
         tag: "${{ fromJson(env.METADATA).version }}"
