@@ -22,6 +22,11 @@ The directory of your mod should be structured as below, with all the files rela
 └── README.md
 ```
 
+**NOTE**: files and directories are not loaded in any particular order. They should be considered "independent" of each other. There are a few options if you want to have some shared logic across files.
+
+1. Create a `lib` directory and pass `source_dir = ["lib", "src"]` to `init`. This will load the lib directory before the source.
+2. Explicitly call `load_directories` or `load_file` to load the dependents in your script. The paths passed to these functions are relative to the mod id's folder.
+
 ### Mod Name
 
 The mod id should be in kebab-case and is preferably also the same as `mod-name` used in the directory structure above.
@@ -68,15 +73,24 @@ end
 
 ## API Functions
 
+### `LOADER.API.load_file`
+The `SMODS.load_file`, just assigned to the `LOADER_API global` for ease
+
+```lua
+LOADER_API.load_file = SMODS.load_file
+```
+
 ### `LOADER_API.load_directory`
 
 Loads a specific directory. Useful you don't want to use the `init` function but do want to load directories. Won't reload already loaded files. By default, it won't recurse into sub directories.
 
 ```lua
 ---loads all the files in a directory
----@param directory string the path of the directory to load
----@param depth number|nil the depth to recurse through the directory. defaults to 1
-function LOADER_API.load_directory(directory, depth)
+---@param path string the path of the directory to load
+---@param id? string  the mod id. Default to `SMODS.current_mod` if not provided.
+---@param max_depth? number the max recursion depth. defaults to `3`.
+---@param depth? number the current recursion depth
+function LOADER_API.load_directory(directory, max_depth, depth)
 ```
 
 ### `LOADER_API.init`

@@ -4,24 +4,57 @@
 ---@type table<string, boolean>
 LOADED_FILES = {}
 
----loads all the files in a directory
----@param directory string the path of the directory to load
----@param depth number|nil the depth to recurse through the directory. defaults to 1
-function LOADER_API.load_directory(directory, depth)
-	depth = depth or 1
-	if depth > 3 then
-		return
+---gets the mod for a provided id. Throws an error if the mod cannot be found
+---@param id? string the mod id. Default to `SMODS.current_mod` if not provided.
+---@return table|Mod
+local function getMod(id)
+	local mod
+	if not id then
+		if not SMODS.current_mod then
+			error("No ID was provided! Usage without an ID is only available when file is first loaded.")
+		end
+		mod = SMODS.current_mod
+	else
+		mod = SMODS.Mods[id]
 	end
 
-	for _, filename in ipairs(NFS.getDirectoryItems(directory)) do
-		local file_path = directory .. "/" .. filename
+	if not mod then
+		error("Mod not found. Ensure you are passing the correct ID.")
+	end
+
+	return mod
+end
+
+LOADER_API.load_file = SMODS.load_file
+
+---loads all the files in a directory
+---@param path string the path of the directory to load
+---@param id? string  the mod id. Default to `SMODS.current_mod` if not provided.
+---@param max_depth? number the max recursion depth. defaults to `3`.
+---@param depth? number the current recursion depth
+function LOADER_API.load_directory(path, id, max_depth, depth)
+	depth = depth or 1
+	if depth > (max_depth or 3) then
+		return
+	end
+	if not path or path == "" then
+		error("No path was provided to load.")
+	end
+
+	local mod = getMod(id)
+	local dir_path = mod.path .. path
+
+	local dir_info = NFS.getInfo(dir_path)
+	if dir_info.type ~= "directory" then
+		error("Provided path is not a directory.")
+	end
+
+	for _, filename in ipairs(NFS.getDirectoryItems(dir_path)) do
+		local file_path = dir_path .. "/" .. filename
 		local file_info = NFS.getInfo(file_path)
 		if file_info.type == "directory" or file_info.type == "symlink" then
-			local f = LOADER_API.load_directory(file_path, depth + 1)
-			if f then
-				return
-			end
-		elseif file_info.type == "file" and filename:match("^(.+)\\.lua$") then
+			LOADER_API.load_directory(file_path, max_depth, depth + 1)
+		elseif file_info.type == "file" and filename:match("%.lua$") then
 			-- if we've already loaded the file then skip
 			if not LOADED_FILES[file_path] then
 				assert(load(NFS.read(file_path)))()
@@ -44,17 +77,7 @@ end
 ---@param id? string
 ---@param options? Options
 function LOADER_API.init(id, options)
-	local mod = SMODS.Mods[id] or SMODS.current_mod
-
-	if id and not mod then
-		sendErrorMessage("Error finding mod with id: " .. id)
-		return
-	end
-
-	if not mod then
-		sendErrorMessage("Error finding mod. Is SMODS installed correctly?")
-		return
-	end
+	local mod = getMod(id)
 
 	local vars = options and options.vars or {}
 
@@ -64,7 +87,7 @@ function LOADER_API.init(id, options)
 	end
 
 	-- Load the mod configuration
-	assert(load(NFS.read(mod.path .. "config.lua")))()
+	assert(LOADER_API.load_file("config.lua", mod.id))()
 
 	if not _G[global_name][vars.config or "CONFIG"] then
 		_G[global_name][vars.config or "CONFIG"] = SMODS.current_mod.config
@@ -76,17 +99,15 @@ function LOADER_API.init(id, options)
 		return
 	end
 
-	local depth = options and options.depth or 3
-
-	if options and type(options.source_dir) == "string" then
-		LOADER_API.load_directory(mod.path .. options.source_dir, depth)
-	elseif options and type(options.source_dir) == "table" then
-		for k, v in pairs(options.source_dir) do
-			LOADER_API.load_directory(mod.path .. v, depth)
-		end
-	else
-		LOADER_API.load_directory(mod.path .. "src", depth)
+	local source_dir = options and options.source_dir or "src"
+	if type(source_dir) == "string" then
+		source_dir = { source_dir }
 	end
 
-	sendDebugMessage(mod.id .. " loaded")
+	local depth = options and options.depth or 3
+	for _, v in pairs(source_dir) do
+		LOADER_API.load_directory(v, mod.id, depth)
+	end
+
+	sendDebugMessage(mod.id .. " loaded", "loader-api")
 end
