@@ -7,7 +7,7 @@ LOADED_FILES = {}
 ---gets the mod for a provided id. Throws an error if the mod cannot be found
 ---@param id? string the mod id. Default to `SMODS.current_mod` if not provided.
 ---@return table|Mod
-local function getMod(id)
+local function get_mod(id)
 	local mod
 	if not id then
 		if not SMODS.current_mod then
@@ -41,24 +41,25 @@ function LOADER_API.load_directory(path, id, max_depth, depth)
 		error("No path was provided to load.")
 	end
 
-	local mod = getMod(id)
-	local dir_path = mod.path .. path
+	local mod = get_mod(id)
+	local full_dir_path = mod.path .. path
 
-	local dir_info = NFS.getInfo(dir_path)
+	local dir_info = NFS.getInfo(full_dir_path)
 	if dir_info.type ~= "directory" then
 		error("Provided path is not a directory.")
 	end
 
-	for _, filename in ipairs(NFS.getDirectoryItems(dir_path)) do
-		local file_path = dir_path .. "/" .. filename
-		local file_info = NFS.getInfo(file_path)
+	for _, filename in ipairs(NFS.getDirectoryItems(full_dir_path)) do
+		local file_path = path .. "/" .. filename
+		local full_file_path = mod.path .. file_path
+		local file_info = NFS.getInfo(full_file_path)
 		if file_info.type == "directory" or file_info.type == "symlink" then
-			LOADER_API.load_directory(file_path, max_depth, depth + 1)
+			LOADER_API.load_directory(file_path, id, max_depth, depth + 1)
 		elseif file_info.type == "file" and filename:match("%.lua$") then
 			-- if we've already loaded the file then skip
-			if not LOADED_FILES[file_path] then
-				assert(load(NFS.read(file_path)))()
-				LOADED_FILES[file_path] = true
+			if not LOADED_FILES[full_file_path] then
+				assert(load(NFS.read(full_file_path)))()
+				LOADED_FILES[full_file_path] = true
 			end
 		end
 	end
@@ -77,7 +78,7 @@ end
 ---@param id? string
 ---@param options? Options
 function LOADER_API.init(id, options)
-	local mod = getMod(id)
+	local mod = get_mod(id)
 
 	local vars = options and options.vars or {}
 
