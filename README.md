@@ -52,14 +52,12 @@ Below is an example metadata file for configuring your mod. Make sure priority i
 
 ### main.lua
 
-To load your mod directories, use the `LOADER_API.init()` inside `SMODS.INIT`.
+To load your mod directories, use the `LOADER_API.init()`.
 
 ```lua
 ["{{MOD_ID}}"] = {} -- global variable to associate your config and mod functions with.
 
-SMODS.INIT.["{{MOD_ID}}"] = function()
-	LOADER_API.init()
-end
+LOADER_API.init()
 ```
 
 ### config.lua
